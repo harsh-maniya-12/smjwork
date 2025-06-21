@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Work Hours Tracker</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      background-color: #f0f2f5;
+      color: #333;
+      padding: 30px;
+    }
+
+    h1 {
+      color: #2c3e50;
+    }
+
+    button {
+      margin: 10px;
+      padding: 12px 24px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      background-color: #3498db;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    #log {
+      margin-top: 30px;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: left;
+    }
+
+    h3 {
+      margin-top: 20px;
+      color: #27ae60;
+    }
+  </style>
+</head>
+<body>
+  <h1>Work Hours Tracker</h1>
+  <button onclick="recordTime('enter')">Enter</button>
+  <button onclick="recordTime('breakStart')">Break Start</button>
+  <button onclick="recordTime('breakEnd')">Break End</button>
+  <button onclick="recordTime('exit')">Exit</button>
+
+  <div id="log"></div>
+  <h3 id="total"></h3>
+
+  <script>
+    let times = {
+      enter: null,
+      breakStart: null,
+      breakEnd: null,
+      exit: null
+    };
+
+    function formatAMPM(date) {
+      let hours = date.getHours();
+      let minutes = date.getMinutes();
+      let seconds = date.getSeconds();
+      let ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12; // the hour '0' should be '12'
+      minutes = minutes < 10 ? '0' + minutes : minutes;
+      seconds = seconds < 10 ? '0' + seconds : seconds;
+      return hours + ':' + minutes + ':' + seconds + ' ' + ampm;
+    }
+
+    function recordTime(type) {
+      const now = new Date();
+      times[type] = now;
+      document.getElementById("log").innerHTML += `<p><strong>${type.replace(/([A-Z])/g, ' $1')}:</strong> ${formatAMPM(now)}</p>`;
+
+      if (type === 'exit' && times.enter) {
+        calculateWorkHours();
+      }
+    }
+
+    function calculateWorkHours() {
+      let totalMs = times.exit - times.enter;
+      let breakMs = 0;
+
+      if (times.breakStart && times.breakEnd) {
+        breakMs = times.breakEnd - times.breakStart;
+      }
+
+      const workMs = totalMs - breakMs;
+      const hours = Math.floor(workMs / (1000 * 60 * 60));
+      const minutes = Math.floor((workMs % (1000 * 60 * 60)) / (1000 * 60));
+
+      document.getElementById("total").innerText = `Total Work Time: ${hours} hours, ${minutes} minutes`;
+    }
+  </script>
+</body>
+</html>
